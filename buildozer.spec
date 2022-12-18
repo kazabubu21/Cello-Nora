@@ -2,11 +2,11 @@
 
 #GENERAL
 
-title = Mutation Purge
-author = Matt Kai
+title = Cello nora
+author = Elad Ernst
 version = 0.1
-package.name = mutationpurge
-package.domain = github.com\KaiXtr\primateria
+package.name = cellonora
+package.domain = github.com/kazabubu21/cello_nora
 
 source.dir = .
 source.exclude_dirs = .vs, __pycache__, build
@@ -17,7 +17,7 @@ source.exclude_exts = spec,html,htm,gitattributes,gitignore
 
 icon.filename = %(source.dir)s/icon.ico
 #presplash.filename = %(source.dir)s/splash.png
-requirements = mutagen,numpy,PIL,pygame,python3,subprocess,threading,urllib,xml
+requirements = threading,kivy
 # requirements.source.kivy = ../../kivy
 
 orientation = all
