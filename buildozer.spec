@@ -2,7 +2,7 @@
 
 #GENERAL
 
-title = Cello nora
+title = Cello Nora
 author = Elad Ernst
 version = 0.1
 package.name = cellonora
@@ -56,7 +56,7 @@ android.permissions = INTERNET, STORAGE
 #android.minapi = 21
 
 # (int) Android SDK version to use
-#android.sdk = 20
+#android.sdk = 24
 
 # (str) Android NDK version to use
 #android.ndk = 19b
