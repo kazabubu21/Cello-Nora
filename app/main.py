@@ -95,7 +95,7 @@ class MyGrid(GridLayout):
         self.inside1.add_widget(self.phone)
         self.add_widget(self.inside1)
 
-        self.submit = Button(text="שלח סמס", font_size=40)
+        self.submit = Button(text="send sms", font_size=40)
         self.submit.bind(on_press=self.send_sms)
         self.add_widget(self.submit)
 

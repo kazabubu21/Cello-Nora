@@ -15,6 +15,7 @@ orientation = portrait
 fullscreen = 1
 android.arch = armeabi-v7a
 
+android.permissions = INTERNET
 
 
 
