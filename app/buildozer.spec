@@ -21,5 +21,8 @@ ios.kivy_ios_branch = master
 ios.ios_deploy_url = https://github.com/phonegap/ios-deploy
 ios.ios_deploy_branch = 1.7.0
 
+android.api = 33
+
+
 [buildozer]
 log_level = 5
