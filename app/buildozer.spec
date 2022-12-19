@@ -9,7 +9,6 @@ package.domain = github.com/kazabubu21/cello_nora
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas
 
-version = 0.1
 requirements = python3,kivy,time,requests
 
 orientation = portrait
