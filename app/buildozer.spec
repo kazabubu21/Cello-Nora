@@ -9,7 +9,7 @@ package.domain = org.cello_nora
 source.dir = .
 source.include_exts = py
 
-requirements = python3,kivy,urllib3,requests
+requirements = python3,kivy,urllib3,requests,chardet, certifi, idna
 
 orientation = portrait
 fullscreen = 1
