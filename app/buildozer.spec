@@ -16,7 +16,6 @@ fullscreen = 1
 android.arch = armeabi-v7a
 
 
-android.api = 33
 
 
 [buildozer]
