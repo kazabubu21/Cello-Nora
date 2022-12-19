@@ -1,3 +1,3 @@
-# cello_nora
+# Cello Nora
 
 Altrnative for Cello
