@@ -11,7 +11,7 @@ from kivy.storage.jsonstore import JsonStore
 
 store = JsonStore('data.json')
 
-
+stop_threads = False
 
 class cell_api():
     def __init__(self, **kwargs):
@@ -29,34 +29,47 @@ class cell_api():
             'Connection': 'close',
         }
         # get a value using a index key and key
+        self.auth_token = ""
+        self.session_id = ""
         if store.exists('auth_token'):
             self.auth_token =store.get('auth_token')['token']
             if self.auth_token:
                 print(self.auth_token)
 
     def send_sms(self, phone):
-        params = {'userName': phone}
-        response = requests.get(
-            'https://app.cellopark-il.com/SmartPhoneAPI/Account/VerifyPhone',
-            params=params,
-            headers=self.headers,
-        )
+        try:
+            params = {'userName': phone}
+            response = requests.get(
+                'https://app.cellopark-il.com/SmartPhoneAPI/Account/VerifyPhone',
+                params=params,
+                headers=self.headers,
+            )
+        except:
+            pass
 
     def verifiy_sms(self, phone,sms):
-        json_data = {
-            'Password': '',
-            'SecretCode': sms,
-            'UserName': phone,
-        }
+        try:
+            json_data = {
+                'Password': '',
+                'SecretCode': sms,
+                'UserName': phone,
+            }
 
-        response = requests.post('https://app.cellopark-il.com/SmartPhoneAPI/Account/Login', headers=self.headers, json=json_data)
-        self.auth_token = response.json()["UserTokenList"][0]["AuthorizationToken"]
-        store.put('auth_token', token=self.auth_token)
+            response = requests.post('https://app.cellopark-il.com/SmartPhoneAPI/Account/Login', headers=self.headers, json=json_data)
+            self.auth_token = response.json()["UserTokenList"][0]["AuthorizationToken"]
+            store.put('auth_token', token=self.auth_token)
+        except:
+            pass
 
         return self.auth_token
 
     def set_car_id(self, car_id):
         self.car_id = car_id
+
+    def check_token(self):
+        if self.auth_token:
+            return True
+        return False
 
     def start_infinity_park(self):
         headers_temp = {
@@ -74,12 +87,45 @@ class cell_api():
         }
         print("start_infinity_park startd")
 
-        while(1):
+        while(not stop_threads):
+            try:
+                if not self.car_id:
+                    print("no car id!")
+                    return
+                json_data_start = {'CarNumber': self.car_id,'CityID': 99,'Source': 2,'ZoneID': 59}
+                response = requests.post('https://app.cellopark-il.com/SmartPhoneAPI/ParkingSession/ExtendParking',headers=headers_temp,json=json_data_start)
+                #print(response.content)
+                if "Session" in response.json() and response.json()["Session"]:
+                    if "ID" in response.json()["Session"]:
+                        self.session_id = response.json()["Session"]["ID"]
+                time.sleep(60)
+            except Exception as e:
+                print(e)
+                pass
 
-            json_data_start = {'CarNumber': self.car_id,'CityID': 99,'Source': 2,'ZoneID': 59}
-            response = requests.post('https://app.cellopark-il.com/SmartPhoneAPI/ParkingSession/ExtendParking',headers=headers_temp,json=json_data_start)
-            print(response.content)
-            time.sleep(60)
+        print("parking stopped!")
+
+    def stop_parking(self):
+
+        headers_temp = {
+            'Host': 'app.cellopark-il.com',
+            'Authorization': 'Basic ' + self.auth_token,
+            'App-Version': '6.65',
+            'Device-Os': 'android',
+            'Device-Name': 'LGELG-H815',
+            'Accept-Language': 'he-IL',
+            'App-Key': '12ZsW8HGd9MSAwvg2LAa7izm8DZJi0vk47ux5se7dz0=',
+            'Os-Version': '23',
+            'User-Agent': 'Device-LGELG-H815,OS-android,App_version-6.65-HUYZNXAHuo5wwpQZpApbmA==',
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Connection': 'close',
+        }
+
+        try:
+            json_data = {"MethodClose":1,"Source":2,"TransactionID": self.session_id}
+            response = requests.post('https://app.cellopark-il.com/SmartPhoneAPI/ParkingSession/StopParking', headers=headers_temp, json=json_data)
+        except:
+            pass
 
 
 class MyGrid(GridLayout):
@@ -99,6 +145,7 @@ class MyGrid(GridLayout):
         self.submit.bind(on_press=self.send_sms)
         self.add_widget(self.submit)
 
+
         #####################################################
         ##chek sms
         self.inside2 = GridLayout()
@@ -112,6 +159,12 @@ class MyGrid(GridLayout):
         self.get_auth_btn.bind(on_press=self.get_auth_btn_func)
         self.add_widget(self.get_auth_btn)
 
+        if cello_api_obj.check_token():
+            self.valid_token = Label(text="valid token found!", font_size=40,color=[0,1,0,1])
+        else:
+            self.valid_token = Label(text="no token", font_size=40,color=[1,0,0,1])
+
+        self.add_widget(self.valid_token)
 
         ##start parking
         self.inside3 = GridLayout()
@@ -125,6 +178,9 @@ class MyGrid(GridLayout):
         self.enable_park.bind(on_press=self.enable_park_func)
         self.add_widget(self.enable_park)
 
+        self.stop_parking = Button(text="stop parking", font_size=40)
+        self.stop_parking.bind(on_press=self.stop_park_func)
+        self.add_widget(self.stop_parking)
 
 
 
@@ -139,12 +195,27 @@ class MyGrid(GridLayout):
         sms_code = self.sms_code.text
 
         token = cello_api_obj.verifiy_sms(phone,sms_code)
+        if cello_api_obj.check_token():
+            self.valid_token = Label(text="valid token found!", font_size=40,color=[0,1,0,1])
+        else:
+            self.valid_token = Label(text="no token", font_size=40,color=[1,0,0,1])
         print("verifiy_sms done. got token")
 
     def enable_park_func(self, instance):
+        global stop_threads
+        stop_threads = False
         car_id = self.car_id.text
         cello_api_obj.set_car_id(car_id)
+        print("starting parking....")
+
         thread = Thread(target=cello_api_obj.start_infinity_park).start()
+
+    def stop_park_func(self, instance):
+        global stop_threads
+        stop_threads = True
+        print("stoping parking....")
+        cello_api_obj.stop_parking()
+
 
 
 class MyApp(App):
