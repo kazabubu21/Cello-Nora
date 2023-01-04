@@ -2,13 +2,19 @@ name: Package Application with Pyinstaller
 
 on:
   push:
-    branches: [ master ]
+    branches-ignore:
+      - data
+      - gh-pages
+    tags:
+      - '**'
   pull_request:
-    branches: [ master ]
+    branches-ignore:
+      - data
+      - gh-pages
 
 jobs:
   build:
-
+    name: Build EXE
     runs-on: ubuntu-latest
 
     steps:
