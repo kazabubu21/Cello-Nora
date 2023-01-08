@@ -1,4 +1,6 @@
 .idea/*
 app/dist*
 app/build*
+app/__*
 data*.json
+
