@@ -4,21 +4,13 @@ from kivy_deps import sdl2, glew
 
 block_cipher = None
 
-coll = COLLECT(exe, Tree('\\'),
-               a.binaries,
-               a.zipfiles,
-               a.datas,
-               *[Tree(p) for p in (sdl2.dep_bins + glew.dep_bins)],
-               strip=False,
-               upx=True,
-               name='Cell Nora')
 
 a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
     datas=[],
-    hiddenimports=[],
+    hiddenimports=['kivy'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -36,7 +28,7 @@ exe = EXE(
     a.binaries,
     a.zipfiles,
     a.datas,
-    [],
+     *[Tree(p) for p in (sdl2.dep_bins + glew.dep_bins)],
     name='main',
     debug=False,
     bootloader_ignore_signals=False,

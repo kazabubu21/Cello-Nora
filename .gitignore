@@ -1,4 +1,4 @@
 .idea/*
 app/dist*
 app/build*
-data.json
+data*.json

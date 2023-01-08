@@ -5,6 +5,10 @@ from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
+from kivy.properties import StringProperty
+
+from kivy.core.window import Window
+
 import time
 import requests
 from kivy.storage.jsonstore import JsonStore
@@ -130,6 +134,9 @@ class cell_api():
 
 class MyGrid(GridLayout):
     def __init__(self, **kwargs):
+
+        self.token_label_text = StringProperty()
+
         super(MyGrid, self).__init__(**kwargs)
         self.cols = 1
 
@@ -141,7 +148,7 @@ class MyGrid(GridLayout):
         self.inside1.add_widget(self.phone)
         self.add_widget(self.inside1)
 
-        self.submit = Button(text="send sms", font_size=40)
+        self.submit = Button(text="send sms", font_size=40,background_down="blue")
         self.submit.bind(on_press=self.send_sms)
         self.add_widget(self.submit)
 
@@ -160,9 +167,15 @@ class MyGrid(GridLayout):
         self.add_widget(self.get_auth_btn)
 
         if cello_api_obj.check_token():
-            self.valid_token = Label(text="valid token found!", font_size=40,color=[0,1,0,1])
+            self.token_label_text = "valid token found!"
+            self.token_label_color = [0,1,0,1]
+            #self.valid_token = Label(text="valid token found!", font_size=40,color=[0,1,0,1])
         else:
-            self.valid_token = Label(text="no token", font_size=40,color=[1,0,0,1])
+            self.token_label_text = "No token!"
+            self.token_label_color = [1,0,0,1]
+
+
+        self.valid_token = Label(text=self.token_label_text, font_size=40,color=self.token_label_color)
 
         self.add_widget(self.valid_token)
 
@@ -200,6 +213,7 @@ class MyGrid(GridLayout):
         else:
             self.valid_token = Label(text="no token", font_size=40,color=[1,0,0,1])
         print("verifiy_sms done. got token")
+        self.token_label_text = "valid token found!"
 
     def enable_park_func(self, instance):
         global stop_threads
@@ -207,7 +221,6 @@ class MyGrid(GridLayout):
         car_id = self.car_id.text
         cello_api_obj.set_car_id(car_id)
         print("starting parking....")
-
         thread = Thread(target=cello_api_obj.start_infinity_park).start()
 
     def stop_park_func(self, instance):
@@ -215,6 +228,11 @@ class MyGrid(GridLayout):
         stop_threads = True
         print("stoping parking....")
         cello_api_obj.stop_parking()
+
+    def stop_just_loolp(self):
+        global stop_threads
+        stop_threads = True
+
 
 
 
