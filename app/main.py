@@ -1,3 +1,5 @@
+import os
+import sys
 from threading import Thread
 
 from kivy.app import App
@@ -13,7 +15,20 @@ import time
 import requests
 from kivy.storage.jsonstore import JsonStore
 
-store = JsonStore('data.json')
+
+def get_config_path():
+    if hasattr(sys, "_MEIPASS"):
+        abs_home = os.path.abspath(os.path.expanduser("~"))
+        abs_dir_app = os.path.join(abs_home, f".cello_folder")
+        if not os.path.exists(abs_dir_app):
+            os.mkdir(abs_dir_app)
+        cfg_path = os.path.join(abs_dir_app, "data.json")
+    else:
+        cfg_path = os.path.abspath(".%sdata.json" % os.sep)
+    return cfg_path
+
+
+store = JsonStore(get_config_path())
 
 stop_threads = False
 
@@ -195,6 +210,9 @@ class MyGrid(GridLayout):
         self.stop_parking.bind(on_press=self.stop_park_func)
         self.add_widget(self.stop_parking)
 
+        self.parking_enabled = Label(text="Paeking is Disable", font_size=40,color=[1,0,0,1])
+        self.add_widget(self.parking_enabled)
+
 
 
     def send_sms(self, instance):
@@ -214,6 +232,9 @@ class MyGrid(GridLayout):
             self.valid_token = Label(text="no token", font_size=40,color=[1,0,0,1])
         print("verifiy_sms done. got token")
         self.token_label_text = "valid token found!"
+        self.children[4].text = "valid token found!"
+        self.children[4].color = [0,1,0,1]
+        self.valid_token.texture_update()
 
     def enable_park_func(self, instance):
         global stop_threads
@@ -222,12 +243,19 @@ class MyGrid(GridLayout):
         cello_api_obj.set_car_id(car_id)
         print("starting parking....")
         thread = Thread(target=cello_api_obj.start_infinity_park).start()
+        self.children[0].text = "Parking Enabled"
+        self.children[0].color = [0,1,0,1]
+        self.valid_token.texture_update()
 
     def stop_park_func(self, instance):
         global stop_threads
         stop_threads = True
         print("stoping parking....")
         cello_api_obj.stop_parking()
+        self.children[0].text = "Parking Disabled"
+        self.children[0].color = [1,0,0,1]
+        self.valid_token.texture_update()
+
 
     def stop_just_loolp(self):
         global stop_threads
