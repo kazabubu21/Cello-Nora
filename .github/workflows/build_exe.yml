@@ -25,7 +25,8 @@ jobs:
       with:
         path: app
         spec: main.spec
+    
     - uses: actions/upload-artifact@v2
       with:
         name: CelloNora.exe
-        path: src/dist/windows
+        path: app/dist/windows
